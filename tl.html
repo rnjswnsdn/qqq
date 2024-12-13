@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>측정된 데이터</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            font-size: 24px;
+        }
+        #vibrationDisplay, #dbDisplay {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>측정된 진동과 데시벨 값</h1>
+
+<p id="vibrationDisplay">진동 세기: 불러오는 중...</p>
+<p id="dbDisplay">데시벨: 불러오는 중...</p>
+
+<script>
+    // localStorage에서 진동 값과 데시벨 값을 가져오는 코드
+    const vibrationValue = localStorage.getItem("vibrationValue");
+    const dbValue = localStorage.getItem("dbValue");
+
+    // 값이 존재하면 표시, 없으면 기본값 표시
+    document.getElementById("vibrationDisplay").textContent = 
+        `진동 세기: ${vibrationValue !== null ? vibrationValue : '데이터 없음'}`;
+    
+    document.getElementById("dbDisplay").textContent = 
+        `데시벨: ${dbValue !== null ? dbValue : '데이터 없음'}`;
+</script>
+
+</body>
+</html>
