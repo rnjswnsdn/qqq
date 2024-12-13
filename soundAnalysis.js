@@ -39,7 +39,7 @@ function handleDeviceMotion(event) {
     // 진동 감지
     if (accelerationMagnitude > vibrationThreshold) {
         vibrationData.push(accelerationMagnitude);
-        updateVibration(accelerationMagnitude);  // 진동 값 업데이트
+        addToVibrationDataList(accelerationMagnitude);
     }
 
     // 데이터 포인트가 너무 많으면 초기화
@@ -52,6 +52,9 @@ function handleDeviceMotion(event) {
 
     // 진동 세기 표시
     vibrationValueElem.textContent = `진동 세기: ${accelerationMagnitude.toFixed(2)}`;
+
+    // 로컬 저장소에 값 저장
+    updateValues(accelerationMagnitude, dbValue);
 }
 
 // 진동 그래프 그리기
@@ -127,10 +130,13 @@ function drawDBGraph() {
 
     // 데시벨 값이 38 이상일 때만 기록
     if (dB >= 38) {
-        updateDb(dB);  // 데시벨 값 업데이트
+        addToDBDataList(dB);
     }
 
     dbValueElem.textContent = `데시벨: ${dB.toFixed(2)} dB`;
+
+    // 로컬 저장소에 값 저장
+    updateValues(vibrationValue, dB);
 
     requestAnimationFrame(drawDBGraph);
 }
@@ -180,45 +186,42 @@ function addToVibrationDataList(value) {
     vibrationDataList.appendChild(listItem);
 }
 
-// localStorage에 진동 값 저장 및 목록 업데이트
-function updateVibration(value) {
-    vibrationData.push(value);
-    document.getElementById("vibrationValue").innerText = `진동 세기: ${value}`;
-    updateVibrationList();
+// 진동 값과 데시벨 값 변경 함수
+function updateValues(vibration, db) {
+    vibrationValue = vibration;
+    dbValue = db;
 
-    // localStorage에 진동 값 저장
-    localStorage.setItem("vibrationData", JSON.stringify(vibrationData));
+    // 값을 페이지에 반영
+    vibrationValueElem.textContent = `진동 세기: ${vibrationValue}`;
+    dbValueElem.textContent = `데시벨: ${dbValue} dB`;
+
+    // 로컬 저장소에 값 저장
+    localStorage.setItem('vibration', vibrationValue);
+    localStorage.setItem('db', dbValue);
+
+    // 기록된 데이터 목록 업데이트
+    updateDataList();
 }
 
-// localStorage에 데시벨 값 저장 및 목록 업데이트
-function updateDb(value) {
-    dbData.push(value);
-    document.getElementById("dbValue").innerText = `데시벨: ${value} dB`;
-    updateDbList();
+// 기록된 데이터 목록 업데이트
+function updateDataList() {
+    const vibrationHistory = localStorage.getItem('vibrationHistory') ? JSON.parse(localStorage.getItem('vibrationHistory')) : [];
+    const dbHistory = localStorage.getItem('dbHistory') ? JSON.parse(localStorage.getItem('dbHistory')) : [];
 
-    // localStorage에 데시벨 값 저장
-    localStorage.setItem("dbData", JSON.stringify(dbData));
-}
-
-// 진동 값 목록 업데이트
-function updateVibrationList() {
-    const list = document.getElementById("vibrationDataList");
-    list.innerHTML = "";
-    vibrationData.forEach((value, index) => {
-        const li = document.createElement("li");
-        li.textContent = `진동 ${index + 1}: ${value}`;
-        list.appendChild(li);
+    // 진동 기록 목록 업데이트
+    vibrationDataList.innerHTML = '';
+    vibrationHistory.forEach((vibration, index) => {
+        const li = document.createElement('li');
+        li.textContent = `측정 ${index + 1}: ${vibration} m/s²`;
+        vibrationDataList.appendChild(li);
     });
-}
 
-// 데시벨 값 목록 업데이트
-function updateDbList() {
-    const list = document.getElementById("dbDataList");
-    list.innerHTML = "";
-    dbData.forEach((value, index) => {
-        const li = document.createElement("li");
-        li.textContent = `데시벨 ${index + 1}: ${value} dB`;
-        list.appendChild(li);
+    // 데시벨 기록 목록 업데이트
+    dbDataList.innerHTML = '';
+    dbHistory.forEach((db, index) => {
+        const li = document.createElement('li');
+        li.textContent = `측정 ${index + 1}: ${db} dB`;
+        dbDataList.appendChild(li);
     });
 }
 
@@ -226,4 +229,5 @@ function updateDbList() {
 window.onload = function () {
     startVibrationDetection();
     startDBMeasurement();
+    updateDataList();
 };
