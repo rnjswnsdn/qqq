@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>진동 감지 및 데시벨 기록</title>
+    <title>측정 결과</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,61 +12,42 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
-        .data-list {
+        #status {
             margin-top: 20px;
-            text-align: left;
-            font-size: 16px;
+            font-size: 18px;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 5px;
+        #vibrationValue, #dbValue {
+            margin-top: 20px;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
 
-<h1>기록된 진동 값 및 데시벨 값</h1>
+<h1>측정 결과</h1>
 
-<div class="data-list">
-    <h3>기록된 진동 값</h3>
-    <ul id="vibrationDataList"></ul>
+<h2>진동 감지</h2>
+<p id="vibrationValue">진동 세기: 0</p>
 
-    <h3>기록된 데시벨 값</h3>
-    <ul id="dbDataList"></ul>
-</div>
+<h2>데시벨 측정</h2>
+<p id="dbValue">데시벨: 0 dB</p>
+
+<p id="status">상태: 데이터 로드 중...</p>
 
 <script>
-    // localStorage에서 진동 값과 데시벨 값 불러오기
-    const vibrationData = JSON.parse(localStorage.getItem("vibrationData")) || [];
-    const dbData = JSON.parse(localStorage.getItem("dbData")) || [];
+    // 페이지가 로드되면 로컬 저장소에서 값을 불러옴
+    window.onload = function() {
+        const vibration = localStorage.getItem('vibration');
+        const db = localStorage.getItem('db');
 
-    // 진동 값과 데시벨 값 표시
-    function displayData() {
-        const vibrationList = document.getElementById("vibrationDataList");
-        const dbList = document.getElementById("dbDataList");
-
-        // 진동 값 목록 출력
-        vibrationList.innerHTML = "";
-        vibrationData.forEach((value, index) => {
-            const li = document.createElement("li");
-            li.textContent = `진동 ${index + 1}: ${value}`;
-            vibrationList.appendChild(li);
-        });
-
-        // 데시벨 값 목록 출력
-        dbList.innerHTML = "";
-        dbData.forEach((value, index) => {
-            const li = document.createElement("li");
-            li.textContent = `데시벨 ${index + 1}: ${value} dB`;
-            dbList.appendChild(li);
-        });
-    }
-
-    // 페이지 로드 시 데이터 표시
-    displayData();
+        if (vibration && db) {
+            document.getElementById('vibrationValue').textContent = `진동 세기: ${vibration}`;
+            document.getElementById('dbValue').textContent = `데시벨: ${db} dB`;
+            document.getElementById('status').textContent = '상태: 데이터 로드 완료';
+        } else {
+            document.getElementById('status').textContent = '상태: 데이터가 없습니다';
+        }
+    };
 </script>
 
 </body>
