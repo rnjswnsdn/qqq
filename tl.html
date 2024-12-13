@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>측정된 진동 값 및 데시벨 값</title>
+    <title>진동 감지 및 데시벨 기록</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,10 +11,6 @@
             margin: 0;
             padding: 20px;
             background-color: #f4f4f4;
-        }
-        #vibrationValue, #dbValue {
-            margin-top: 20px;
-            font-size: 18px;
         }
         .data-list {
             margin-top: 20px;
@@ -32,42 +28,45 @@
 </head>
 <body>
 
-<h1>측정된 값</h1>
-<p>이 페이지에서는 이전 페이지에서 측정된 진동 값과 데시벨 값을 확인할 수 있습니다.</p>
-
-<h2>진동 값</h2>
-<p id="vibrationValue">진동 세기: 0</p>
-
-<h2>데시벨 값</h2>
-<p id="dbValue">데시벨: 0 dB</p>
+<h1>기록된 진동 값 및 데시벨 값</h1>
 
 <div class="data-list">
-    <h3>기록된 값</h3>
-    <ul>
-        <li>진동 값: <span id="storedVibrationValue">0</span></li>
-        <li>데시벨 값: <span id="storedDbValue">0</span></li>
-    </ul>
+    <h3>기록된 진동 값</h3>
+    <ul id="vibrationDataList"></ul>
+
+    <h3>기록된 데시벨 값</h3>
+    <ul id="dbDataList"></ul>
 </div>
 
-<p><a href="index.html">측정 페이지로 돌아가기</a></p>
-
 <script>
-    // localStorage에서 저장된 진동 값과 데시벨 값을 불러오기
-    window.onload = function() {
-        let storedVibrationValue = localStorage.getItem("vibrationValue");
-        let storedDbValue = localStorage.getItem("dbValue");
+    // localStorage에서 진동 값과 데시벨 값 불러오기
+    const vibrationData = JSON.parse(localStorage.getItem("vibrationData")) || [];
+    const dbData = JSON.parse(localStorage.getItem("dbData")) || [];
 
-        // 값이 있으면 페이지에 표시
-        if (storedVibrationValue !== null && storedDbValue !== null) {
-            document.getElementById('storedVibrationValue').textContent = storedVibrationValue;
-            document.getElementById('storedDbValue').textContent = storedDbValue;
-            document.getElementById('vibrationValue').textContent = "진동 세기: " + storedVibrationValue;
-            document.getElementById('dbValue').textContent = "데시벨: " + storedDbValue + " dB";
-        } else {
-            document.getElementById('vibrationValue').textContent = "진동 세기: 측정되지 않음";
-            document.getElementById('dbValue').textContent = "데시벨: 측정되지 않음";
-        }
-    };
+    // 진동 값과 데시벨 값 표시
+    function displayData() {
+        const vibrationList = document.getElementById("vibrationDataList");
+        const dbList = document.getElementById("dbDataList");
+
+        // 진동 값 목록 출력
+        vibrationList.innerHTML = "";
+        vibrationData.forEach((value, index) => {
+            const li = document.createElement("li");
+            li.textContent = `진동 ${index + 1}: ${value}`;
+            vibrationList.appendChild(li);
+        });
+
+        // 데시벨 값 목록 출력
+        dbList.innerHTML = "";
+        dbData.forEach((value, index) => {
+            const li = document.createElement("li");
+            li.textContent = `데시벨 ${index + 1}: ${value} dB`;
+            dbList.appendChild(li);
+        });
+    }
+
+    // 페이지 로드 시 데이터 표시
+    displayData();
 </script>
 
 </body>
