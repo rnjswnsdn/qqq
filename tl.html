@@ -53,21 +53,22 @@
 
 <script>
     // localStorage에서 저장된 진동 값과 데시벨 값을 불러오기
-    let storedVibrationValue = localStorage.getItem("vibrationValue");
-    let storedDbValue = localStorage.getItem("dbValue");
+    window.onload = function() {
+        let storedVibrationValue = localStorage.getItem("vibrationValue");
+        let storedDbValue = localStorage.getItem("dbValue");
 
-    // 값이 있으면 페이지에 표시
-    if (storedVibrationValue !== null && storedDbValue !== null) {
-        document.getElementById('storedVibrationValue').textContent = storedVibrationValue;
-        document.getElementById('storedDbValue').textContent = storedDbValue;
-        document.getElementById('vibrationValue').textContent = "진동 세기: " + storedVibrationValue;
-        document.getElementById('dbValue').textContent = "데시벨: " + storedDbValue + " dB";
-    } else {
-        document.getElementById('vibrationValue').textContent = "진동 세기: 측정되지 않음";
-        document.getElementById('dbValue').textContent = "데시벨: 측정되지 않음";
-    }
+        // 값이 있으면 페이지에 표시
+        if (storedVibrationValue !== null && storedDbValue !== null) {
+            document.getElementById('storedVibrationValue').textContent = storedVibrationValue;
+            document.getElementById('storedDbValue').textContent = storedDbValue;
+            document.getElementById('vibrationValue').textContent = "진동 세기: " + storedVibrationValue;
+            document.getElementById('dbValue').textContent = "데시벨: " + storedDbValue + " dB";
+        } else {
+            document.getElementById('vibrationValue').textContent = "진동 세기: 측정되지 않음";
+            document.getElementById('dbValue').textContent = "데시벨: 측정되지 않음";
+        }
+    };
 </script>
 
 </body>
 </html>
-
