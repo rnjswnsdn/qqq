@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>진동 감지 및 데시벨 측정</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        canvas {
+            width: 100%;
+            height: 200px;
+            border: 1px solid black;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        #vibrationValue, #dbValue {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .data-list {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 16px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>진동 감지 및 데시벨 측정</h1>
+<p>핸드폰의 가속도 센서와 마이크를 통해 진동과 데시벨을 감지하고, 결과를 그래프로 시각화합니다.</p>
+
+<h2>진동 감지</h2>
+<canvas id="vibrationCanvas"></canvas>
+<p id="vibrationValue">진동 세기: 0</p>
+
+<h2>데시벨 측정</h2>
+<canvas id="dbCanvas"></canvas>
+<p id="dbValue">데시벨: 0 dB</p>
+
+<div class="data-list">
+    <h3>기록된 진동 값</h3>
+    <ul id="vibrationDataList"></ul>
+    <h3>기록된 데시벨 값</h3>
+    <ul id="dbDataList"></ul>
+</div>
+
+<p id="status">상태: 대기 중...</p>
+
+<!-- 데이터 전달 페이지 -->
+<a href="tl.html">데이터 페이지로 이동</a>
+
+<script src="soundAnalysis.js"></script>
+
+<script>
+    // 진동 값과 데시벨 값을 localStorage에 저장하는 코드
+    function saveData(vibrationValue, dbValue) {
+        localStorage.setItem("vibrationValue", vibrationValue);
+        localStorage.setItem("dbValue", dbValue);
+    }
+
+    // 예시로 진동 값과 데시벨 값을 설정 (실제 값은 센서나 마이크 입력에 따라 바뀌어야 합니다)
+    let vibrationValue = 5;  // 예시 값
+    let dbValue = 70;  // 예시 값
+
+    // 데이터를 localStorage에 저장
+    saveData(vibrationValue, dbValue);
+</script>
+
+</body>
+</html>
