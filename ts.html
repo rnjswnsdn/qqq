@@ -25,18 +25,6 @@
             margin-top: 20px;
             font-size: 18px;
         }
-        .data-list {
-            margin-top: 20px;
-            text-align: left;
-            font-size: 16px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 5px;
-        }
     </style>
 </head>
 <body>
@@ -52,13 +40,6 @@
 <canvas id="dbCanvas"></canvas>
 <p id="dbValue">데시벨: 0 dB</p>
 
-<div class="data-list">
-    <h3>기록된 진동 값</h3>
-    <ul id="vibrationDataList"></ul>
-    <h3>기록된 데시벨 값</h3>
-    <ul id="dbDataList"></ul>
-</div>
-
 <p id="status">상태: 대기 중...</p>
 
 <!-- 데이터 페이지 링크 -->
@@ -67,7 +48,6 @@
 <script>
     // 진동 값과 데시벨 값을 localStorage에 저장하는 코드
     function saveData(vibrationValue, dbValue) {
-        // 진동 값과 데시벨 값을 localStorage에 저장
         localStorage.setItem("vibrationValue", vibrationValue);
         localStorage.setItem("dbValue", dbValue);
     }
