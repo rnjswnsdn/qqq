@@ -1,0 +1,152 @@
+const vibrationCanvas = document.getElementById('vibrationCanvas');
+const vibrationCtx = vibrationCanvas.getContext('2d');
+const dbCanvas = document.getElementById('dbCanvas');
+const dbCtx = dbCanvas.getContext('2d');
+
+const statusElem = document.getElementById('status');
+const vibrationElem = document.getElementById('vibrationValue');
+const dbElem = document.getElementById('dbValue');
+
+let lastX = 0, lastY = 0, lastZ = 0;
+let vibrationData = [];  // 진동 데이터를 저장할 배열
+let dbData = [];  // 데시벨 데이터를 저장할 배열
+let maxDataPoints = 100;  // 그래프에 표시할 최대 데이터 포인트 수
+let vibrationThreshold = 0.5;  // 진동 감지 임계값 (임계값을 낮추어 감지 민감도를 높임)
+
+// 기기의 진동 감지
+if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', handleDeviceMotion, false);
+    statusElem.textContent = "상태: 진동 감지 중...";
+} else {
+    statusElem.textContent = "이 장치는 진동 감지를 지원하지 않습니다.";
+}
+
+// 마이크를 통한 데시벨 측정
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let analyser = audioContext.createAnalyser();
+            let microphone = audioContext.createMediaStreamSource(stream);
+            microphone.connect(analyser);
+            analyser.fftSize = 256;
+            let bufferLength = analyser.frequencyBinCount;
+            let dataArray = new Uint8Array(bufferLength);
+            drawDbGraph(analyser, dataArray);
+        })
+        .catch(err => {
+            statusElem.textContent = "마이크 권한을 허용하지 않았습니다.";
+            console.error("Error accessing microphone: ", err);
+        });
+} else {
+    statusElem.textContent = "이 브라우저는 getUserMedia를 지원하지 않습니다.";
+}
+
+// 진동 감지 함수
+function handleDeviceMotion(event) {
+    const acceleration = event.accelerationIncludingGravity;
+
+    // X, Y, Z축의 가속도 변화량 계산
+    const deltaX = acceleration.x - lastX;
+    const deltaY = acceleration.y - lastY;
+    const deltaZ = acceleration.z - lastZ;
+
+    // 진동 강도 계산 (가속도의 변화량 합)
+    const vibrationIntensity = Math.abs(deltaX) + Math.abs(deltaY) + Math.abs(deltaZ);
+
+    // 진동 강도가 임계값을 넘으면 진동 감지
+    if (vibrationIntensity > vibrationThreshold) {
+        vibrationElem.textContent = `진동 강도: ${vibrationIntensity.toFixed(2)}`;
+    }
+
+    // 진동 강도를 그래프에 추가
+    vibrationData.push(vibrationIntensity);
+    if (vibrationData.length > maxDataPoints) {
+        vibrationData.shift();  // 데이터가 너무 많으면 앞부분을 삭제
+    }
+
+    // 이전 가속도 값 갱신
+    lastX = acceleration.x;
+    lastY = acceleration.y;
+    lastZ = acceleration.z;
+
+    // 진동 그래프 그리기
+    drawVibrationGraph();
+}
+
+// 진동 그래프 그리기
+function drawVibrationGraph() {
+    vibrationCtx.clearRect(0, 0, vibrationCanvas.width, vibrationCanvas.height);
+
+    const width = vibrationCanvas.width;
+    const height = vibrationCanvas.height;
+
+    // 그래프의 X, Y 축 비율 설정
+    const barWidth = width / vibrationData.length;
+    const maxVibration = Math.max(...vibrationData);
+
+    vibrationCtx.strokeStyle = 'rgb(50, 150, 255)';
+    vibrationCtx.lineWidth = 2;
+
+    // 선을 그리기 시작
+    vibrationCtx.beginPath();
+    let x = 0;
+
+    for (let i = 0; i < vibrationData.length; i++) {
+        const barHeight = (vibrationData[i] / maxVibration) * height;  // 진동 강도를 그래프 높이에 맞게 변환
+        const y = height - barHeight;  // 그래프는 아래에서 위로 그리므로 높이를 반전시킴
+        if (i === 0) {
+            vibrationCtx.moveTo(x, y);  // 첫 번째 점은 이동
+        } else {
+            vibrationCtx.lineTo(x, y);  // 그 후 점은 선으로 연결
+        }
+        x += barWidth;  // X 좌표 이동
+    }
+
+    vibrationCtx.stroke();
+}
+
+// 데시벨 그래프 그리기
+function drawDbGraph(analyser, dataArray) {
+    analyser.getByteFrequencyData(dataArray);  // 주파수 데이터 가져오기
+
+    dbCtx.clearRect(0, 0, dbCanvas.width, dbCanvas.height);
+
+    const width = dbCanvas.width;
+    const height = dbCanvas.height;
+    const barWidth = width / dataArray.length;
+    let x = 0;
+
+    // 그래프 그리기
+    for (let i = 0; i < dataArray.length; i++) {
+        const barHeight = dataArray[i];
+        dbCtx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;  // 색상 설정
+        dbCtx.fillRect(x, height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+    }
+
+    // 데시벨 계산 (최대 진폭 기준으로)
+    const dB = calculateDb(dataArray);
+    dbElem.textContent = `데시벨: ${dB.toFixed(2)} dB`;
+
+    // 애니메이션을 위해 계속 호출
+    requestAnimationFrame(() => drawDbGraph(analyser, dataArray));
+}
+
+// 시간 도메인 데이터를 바탕으로 데시벨 계산 (최대 진폭 기준으로 0 dB)
+function calculateDb(dataArray) {
+    let sum = 0;
+    let count = 0;
+
+    // 데이터를 기반으로 데시벨을 계산
+    for (let i = 0; i < dataArray.length; i++) {
+        if (dataArray[i] > 0) {
+            sum += Math.log10(dataArray[i]);
+            count++;
+        }
+    }
+
+    // 평균 데시벨 계산
+    const averageDb = 10 * (sum / count);
+    return averageDb;
+}
