@@ -39,7 +39,7 @@ function handleDeviceMotion(event) {
     // 진동 감지
     if (accelerationMagnitude > vibrationThreshold) {
         vibrationData.push(accelerationMagnitude);
-        addToVibrationDataList(accelerationMagnitude);
+        updateVibration(accelerationMagnitude);  // 진동 값 업데이트
     }
 
     // 데이터 포인트가 너무 많으면 초기화
@@ -127,7 +127,7 @@ function drawDBGraph() {
 
     // 데시벨 값이 38 이상일 때만 기록
     if (dB >= 38) {
-        addToDBDataList(dB);
+        updateDb(dB);  // 데시벨 값 업데이트
     }
 
     dbValueElem.textContent = `데시벨: ${dB.toFixed(2)} dB`;
@@ -178,6 +178,48 @@ function addToVibrationDataList(value) {
     const listItem = document.createElement('li');
     listItem.textContent = `진동: ${value.toFixed(2)}`;
     vibrationDataList.appendChild(listItem);
+}
+
+// localStorage에 진동 값 저장 및 목록 업데이트
+function updateVibration(value) {
+    vibrationData.push(value);
+    document.getElementById("vibrationValue").innerText = `진동 세기: ${value}`;
+    updateVibrationList();
+
+    // localStorage에 진동 값 저장
+    localStorage.setItem("vibrationData", JSON.stringify(vibrationData));
+}
+
+// localStorage에 데시벨 값 저장 및 목록 업데이트
+function updateDb(value) {
+    dbData.push(value);
+    document.getElementById("dbValue").innerText = `데시벨: ${value} dB`;
+    updateDbList();
+
+    // localStorage에 데시벨 값 저장
+    localStorage.setItem("dbData", JSON.stringify(dbData));
+}
+
+// 진동 값 목록 업데이트
+function updateVibrationList() {
+    const list = document.getElementById("vibrationDataList");
+    list.innerHTML = "";
+    vibrationData.forEach((value, index) => {
+        const li = document.createElement("li");
+        li.textContent = `진동 ${index + 1}: ${value}`;
+        list.appendChild(li);
+    });
+}
+
+// 데시벨 값 목록 업데이트
+function updateDbList() {
+    const list = document.getElementById("dbDataList");
+    list.innerHTML = "";
+    dbData.forEach((value, index) => {
+        const li = document.createElement("li");
+        li.textContent = `데시벨 ${index + 1}: ${value} dB`;
+        list.appendChild(li);
+    });
 }
 
 // 페이지 로드 후 진동 감지 및 데시벨 측정을 시작
