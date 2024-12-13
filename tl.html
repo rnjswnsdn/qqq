@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>측정된 데이터</title>
+    <title>측정된 진동 값 및 데시벨 값</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,33 +12,60 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
-        h1 {
-            font-size: 24px;
-        }
-        #vibrationDisplay, #dbDisplay {
-            font-size: 20px;
+        #vibrationValue, #dbValue {
             margin-top: 20px;
+            font-size: 18px;
+        }
+        .data-list {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 16px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
 
-<h1>측정된 진동과 데시벨 값</h1>
+<h1>측정된 값</h1>
+<p>이 페이지에서는 이전 페이지에서 측정된 진동 값과 데시벨 값을 확인할 수 있습니다.</p>
 
-<p id="vibrationDisplay">진동 세기: 불러오는 중...</p>
-<p id="dbDisplay">데시벨: 불러오는 중...</p>
+<h2>진동 값</h2>
+<p id="vibrationValue">진동 세기: 0</p>
+
+<h2>데시벨 값</h2>
+<p id="dbValue">데시벨: 0 dB</p>
+
+<div class="data-list">
+    <h3>기록된 값</h3>
+    <ul>
+        <li>진동 값: <span id="storedVibrationValue">0</span></li>
+        <li>데시벨 값: <span id="storedDbValue">0</span></li>
+    </ul>
+</div>
+
+<p><a href="index.html">측정 페이지로 돌아가기</a></p>
 
 <script>
-    // localStorage에서 진동 값과 데시벨 값을 가져오는 코드
-    const vibrationValue = localStorage.getItem("vibrationValue");
-    const dbValue = localStorage.getItem("dbValue");
+    // localStorage에서 저장된 진동 값과 데시벨 값을 불러오기
+    let storedVibrationValue = localStorage.getItem("vibrationValue");
+    let storedDbValue = localStorage.getItem("dbValue");
 
-    // 값이 존재하면 표시, 없으면 기본값 표시
-    document.getElementById("vibrationDisplay").textContent = 
-        `진동 세기: ${vibrationValue !== null ? vibrationValue : '데이터 없음'}`;
-    
-    document.getElementById("dbDisplay").textContent = 
-        `데시벨: ${dbValue !== null ? dbValue : '데이터 없음'}`;
+    // 값이 있으면 페이지에 표시
+    if (storedVibrationValue !== null && storedDbValue !== null) {
+        document.getElementById('storedVibrationValue').textContent = storedVibrationValue;
+        document.getElementById('storedDbValue').textContent = storedDbValue;
+        document.getElementById('vibrationValue').textContent = "진동 세기: " + storedVibrationValue;
+        document.getElementById('dbValue').textContent = "데시벨: " + storedDbValue + " dB";
+    } else {
+        document.getElementById('vibrationValue').textContent = "진동 세기: 측정되지 않음";
+        document.getElementById('dbValue').textContent = "데시벨: 측정되지 않음";
+    }
 </script>
 
 </body>
