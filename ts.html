@@ -25,6 +25,18 @@
             margin-top: 20px;
             font-size: 18px;
         }
+        .data-list {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 16px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -40,102 +52,16 @@
 <canvas id="dbCanvas"></canvas>
 <p id="dbValue">데시벨: 0 dB</p>
 
+<div class="data-list">
+    <h3>기록된 진동 값</h3>
+    <ul id="vibrationDataList"></ul>
+    <h3>기록된 데시벨 값</h3>
+    <ul id="dbDataList"></ul>
+</div>
+
 <p id="status">상태: 대기 중...</p>
 
-<!-- 데이터 페이지 링크 -->
-<a href="tl.html">데이터 페이지로 이동</a>
-
-<script>
-    // 진동 값과 데시벨 값을 localStorage에 저장하는 코드
-    function saveData(vibrationValue, dbValue) {
-        localStorage.setItem("vibrationValue", vibrationValue);
-        localStorage.setItem("dbValue", dbValue);
-    }
-
-    // 진동 감지
-    let vibrationValue = 0;
-    window.addEventListener('devicemotion', function(event) {
-        let x = event.acceleration.x;
-        let y = event.acceleration.y;
-        let z = event.acceleration.z;
-        // 진동 세기는 가속도 변화량으로 계산
-        vibrationValue = Math.sqrt(x*x + y*y + z*z);
-        document.getElementById('vibrationValue').textContent = "진동 세기: " + vibrationValue.toFixed(2);
-        
-        // 진동 값을 canvas에 그래프화
-        drawVibrationGraph(vibrationValue);
-        
-        // 진동 값 저장
-        saveData(vibrationValue, dbValue);
-    });
-
-    // 데시벨 측정
-    let dbValue = 0;
-    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let analyser = audioContext.createAnalyser();
-    let microphone;
-    
-    navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(function(stream) {
-        microphone = audioContext.createMediaStreamSource(stream);
-        microphone.connect(analyser);
-        analyser.fftSize = 256;
-        let bufferLength = analyser.frequencyBinCount;
-        let dataArray = new Uint8Array(bufferLength);
-        
-        function updateDecibels() {
-            analyser.getByteFrequencyData(dataArray);
-            let sum = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                sum += dataArray[i];
-            }
-            dbValue = sum / bufferLength;
-            document.getElementById('dbValue').textContent = "데시벨: " + dbValue.toFixed(2) + " dB";
-            
-            // 데시벨 값을 canvas에 그래프화
-            drawDbGraph(dbValue);
-
-            // 데시벨 값 저장
-            saveData(vibrationValue, dbValue);
-            requestAnimationFrame(updateDecibels);
-        }
-        
-        updateDecibels();
-    }).catch(function(err) {
-        console.error("마이크를 사용할 수 없습니다: " + err);
-    });
-
-    // 진동 값 그래프 그리기
-    function drawVibrationGraph(vibrationValue) {
-        let canvas = document.getElementById('vibrationCanvas');
-        let ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height - vibrationValue * 10);
-        ctx.lineTo(canvas.width, canvas.height - vibrationValue * 10);
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-
-    // 데시벨 값 그래프 그리기
-    function drawDbGraph(dbValue) {
-        let canvas = document.getElementById('dbCanvas');
-        let ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height - dbValue);
-        ctx.lineTo(canvas.width, canvas.height - dbValue);
-        ctx.strokeStyle = 'blue';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-
-    // 상태 업데이트
-    document.getElementById('status').textContent = "상태: 측정 중...";
-</script>
+<script src="soundAnalysis.js"></script>
 
 </body>
 </html>
