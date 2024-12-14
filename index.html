@@ -135,11 +135,45 @@
             .then(function(stream) {
                 // 마이크 스트림을 성공적으로 가져오면 상태 업데이트
                 document.getElementById('status').textContent = '상태: 마이크 권한 허용됨.';
+                startAudioProcessing(stream);  // 음성 데이터를 처리할 함수 호출
             })
             .catch(function(error) {
                 // 마이크 권한이 거부되었을 경우
                 document.getElementById('status').textContent = '상태: 마이크 권한이 필요합니다.';
             });
+    }
+
+    // 오디오 데이터를 처리하는 함수
+    function startAudioProcessing(stream) {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        const microphone = audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyser);
+        
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        // 오디오 분석을 시작하고 주기적으로 데시벨을 계산
+        function analyzeAudio() {
+            analyser.getByteFrequencyData(dataArray);
+
+            let sum = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                sum += dataArray[i];
+            }
+
+            const average = sum / bufferLength;
+            const decibels = 20 * Math.log10(average / 255); // dB 계산
+
+            // 화면에 데시벨 값을 표시
+            document.getElementById('dbValue').textContent = `데시벨: ${decibels.toFixed(2)} dB`;
+
+            // 요청된 시점에 계속해서 오디오를 분석
+            requestAnimationFrame(analyzeAudio);
+        }
+
+        analyzeAudio();
     }
 
     // 페이지가 로드되면 마이크 권한을 요청
