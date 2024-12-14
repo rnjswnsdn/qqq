@@ -25,6 +25,7 @@
             margin-top: 20px;
             font-size: 18px;
         }
+        /* 테이블 스타일 */
         .data-list {
             margin-top: 20px;
             text-align: left;
@@ -46,10 +47,12 @@
         th {
             background-color: #f2f2f2;
         }
+        /* 스크롤을 추가하는 스타일 */
         .scrollable {
-            max-height: 300px;
-            overflow-y: auto;
+            max-height: 300px;  /* 최대 높이 설정 */
+            overflow-y: auto;    /* 세로 스크롤 활성화 */
         }
+        /* 버튼 스타일 */
         .reset-button, .view-data-button {
             margin-top: 20px;
             padding: 10px 20px;
@@ -126,71 +129,23 @@
 <script src="soundAnalysis.js"></script>
 
 <script>
-// 마이크와 관련된 변수
-let audioContext;
-let analyser;
-let microphone;
-let bufferLength;
-let dataArray;
+    // 기록 초기화 기능
+    document.getElementById('resetButton').addEventListener('click', function() {
+        // 진동 값 목록 초기화
+        document.getElementById('vibrationDataList').innerHTML = '';
+        // 데시벨 값 목록 초기화
+        document.getElementById('dbDataList').innerHTML = '';
+        
+        // localStorage에 저장된 기록도 초기화
+        localStorage.removeItem('vibrationData');
+        localStorage.removeItem('dbData');
 
-// 데시벨 측정을 위한 함수
-function getDecibels() {
-    analyser.getByteFrequencyData(dataArray);
-    
-    let sum = 0;
-    for (let i = 0; i < bufferLength; i++) {
-        sum += dataArray[i];
-    }
-    let average = sum / bufferLength;
-    let decibels = Math.log10(average) * 20;
-    document.getElementById('dbValue').textContent = `데시벨: ${decibels.toFixed(2)} dB`;
-
-    requestAnimationFrame(getDecibels);
-}
-
-// 마이크 권한 요청 및 오디오 스트림 시작
-function startAudio() {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 2048;
-            bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-            
-            microphone = audioContext.createMediaStreamSource(stream);
-            microphone.connect(analyser);
-            
-            // 데시벨 측정을 시작
-            getDecibels();
-        })
-        .catch(err => {
-            document.getElementById('status').textContent = '마이크 권한을 허용해주세요.';
-        });
-}
-
-// 페이지 로드 시 마이크 권한 요청
-window.onload = function() {
-    startAudio();
-};
-
-// 기록 초기화 기능
-document.getElementById('resetButton').addEventListener('click', function() {
-    // 진동 값 목록 초기화
-    document.getElementById('vibrationDataList').innerHTML = '';
-    // 데시벨 값 목록 초기화
-    document.getElementById('dbDataList').innerHTML = '';
-    
-    // localStorage에 저장된 기록도 초기화
-    localStorage.removeItem('vibrationData');
-    localStorage.removeItem('dbData');
-
-    // 상태 메시지 업데이트
-    document.getElementById('status').textContent = '상태: 기록이 초기화되었습니다.';
-    
-    // 페이지 새로고침
-    location.reload();
-});
+        // 상태 메시지 업데이트
+        document.getElementById('status').textContent = '상태: 기록이 초기화되었습니다.';
+        
+        // 페이지 새로고침
+        location.reload();
+    });
 </script>
 
 </body>
