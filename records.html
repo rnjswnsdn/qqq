@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>측정 기록 보기</title>
+</head>
+<body>
+    <h1>측정 기록</h1>
+    <h2>데시벨 기록</h2>
+    <div id="decibelRecords"></div>
+    
+    <h2>진동 기록</h2>
+    <div id="vibrationRecords"></div>
+
+    <script>
+        // 로컬 저장소에서 데시벨 기록 가져오기
+        const decibelRecord = JSON.parse(localStorage.getItem('decibelRecord'));
+        const vibrationRecord = JSON.parse(localStorage.getItem('vibrationRecord'));
+
+        // 데시벨 기록 표시
+        if (decibelRecord) {
+            document.getElementById('decibelRecords').innerHTML = `
+                <p>시간: ${new Date(decibelRecord.time).toLocaleString()}</p>
+                <p>데시벨: ${decibelRecord.decibel} dB</p>
+            `;
+        } else {
+            document.getElementById('decibelRecords').innerHTML = `<p>데시벨 기록이 없습니다.</p>`;
+        }
+
+        // 진동 기록 표시
+        if (vibrationRecord) {
+            document.getElementById('vibrationRecords').innerHTML = `
+                <p>시간: ${new Date(vibrationRecord.time).toLocaleString()}</p>
+                <p>진동 감지: ${vibrationRecord.vibration}</p>
+            `;
+        } else {
+            document.getElementById('vibrationRecords').innerHTML = `<p>진동 기록이 없습니다.</p>`;
+        }
+    </script>
+</body>
+</html>
