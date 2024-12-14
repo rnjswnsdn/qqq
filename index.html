@@ -129,6 +129,24 @@
 <script src="soundAnalysis.js"></script>
 
 <script>
+    // 마이크 권한 요청 함수
+    function requestMicrophoneAccess() {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+                // 마이크 스트림을 성공적으로 가져오면 상태 업데이트
+                document.getElementById('status').textContent = '상태: 마이크 권한 허용됨.';
+            })
+            .catch(function(error) {
+                // 마이크 권한이 거부되었을 경우
+                document.getElementById('status').textContent = '상태: 마이크 권한이 필요합니다.';
+            });
+    }
+
+    // 페이지가 로드되면 마이크 권한을 요청
+    window.onload = function() {
+        requestMicrophoneAccess();
+    };
+
     // 기록 초기화 기능
     document.getElementById('resetButton').addEventListener('click', function() {
         // 진동 값 목록 초기화
